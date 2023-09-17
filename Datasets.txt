@@ -1,0 +1,52 @@
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.io as pio
+pio.templates.default = "plotly_white"
+
+data = pd.read_csv('retail price.csv')
+print(data.head())
+print(data.isnull().sum())
+print(data.describe())
+fig = px.histogram(data, 
+                   x='total_price', 
+                   nbins=20, 
+                   title='Distribution of Total Price')
+fig.show()
+fig = px.box(data, 
+             y='unit_price', 
+             title='Box Plot of Unit Price')
+fig.show()
+fig = px.scatter(data, 
+                 x='qty', 
+                 y='total_price', 
+                 title='Quantity vs Total Price', trendline="ols")
+fig.show()
+fig = px.bar(data, x='product_category_name', 
+             y='total_price', 
+             title='Average Total Price by Product Category')
+fig.show()
+fig = px.box(data, x='weekday', 
+             y='total_price', 
+             title='Box Plot of Total Price by Weekday')
+fig.show()
+fig = px.box(data, x='holiday', 
+             y='total_price', 
+             title='Box Plot of Total Price by Holiday')
+fig.show()
+correlation_matrix = data.corr()
+fig = go.Figure(go.Heatmap(x=correlation_matrix.columns, 
+                           y=correlation_matrix.columns, 
+                           z=correlation_matrix.values))
+data['comp_price_diff'] = data['unit_price'] - data['comp_1'] 
+
+avg_price_diff_by_category = data.groupby('product_category_name')['comp_price_diff'].mean().reset_index()
+
+fig = px.bar(avg_price_diff_by_category, 
+             x='product_category_name', 
+             y='comp_price_diff', 
+             title='Average Competitor Price Difference by Product Category')
+fig.update_layout(
+    xaxis_title='Product Category',
+    yaxis_title='Average Competitor Price Difference'
+)
